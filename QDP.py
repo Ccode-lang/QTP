@@ -1,10 +1,11 @@
 import socket
-import hashlib
 
-def hashmessage(message):
-    message_bytes = message.encode('utf-8')
-    hash_object = hashlib.sha256(message_bytes)
-    return hash_object.hexdigest()
+
+class packet_data:
+    def __init__(self, num : int, message : str, addr : tuple):
+        self.num = num
+        self.message = message
+        self.addr = addr
 
 class QDPclient:
     def __init__(self):
@@ -13,7 +14,7 @@ class QDPclient:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     def send_packet(self, num, message : str):
         newmessage = message.replace(":", "%1]")
-        self.sock.sendto(f"{num}:{hashmessage(newmessage)}:{newmessage}".encode(), (self.IP, self.port))
+        self.sock.sendto(f"{num}:{newmessage}".encode(), (self.IP, self.port))
     def close(self):
         self.sock.close()
 
@@ -28,13 +29,8 @@ class QDPserver:
         data = data.decode().split(":")
 
         num = data[0]
-        hash = data[1]
-        message = data[2]
-        valid = False
-
-        if hashmessage(message) == hash:
-            valid = True
+        message = data[1].replace("%1]", ":")
         
-        print(f"num:{num}\nhash:{hash}\nmessage:{message}\nvalid:{valid}")
+        return packet_data(num, message, addr)
     def close(self):
         self.sock.close()
