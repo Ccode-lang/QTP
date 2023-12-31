@@ -14,6 +14,8 @@ class QDPclient:
     def send_packet(self, num, message : str):
         newmessage = message.replace(":", "%1]")
         self.sock.sendto(f"{num}:{hashmessage(newmessage)}:{newmessage}".encode(), (self.IP, self.port))
+    def close(self):
+        self.sock.close()
 
 class QDPserver:
     def __init__(self):
@@ -34,3 +36,5 @@ class QDPserver:
             valid = True
         
         print(f"num:{num}\nhash:{hash}\nmessage:{message}\nvalid:{valid}")
+    def close(self):
+        self.sock.close()
